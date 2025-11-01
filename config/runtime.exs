@@ -88,6 +88,9 @@ if config_env() == :prod do
   base_route_path = System.get_env("BASE_ROUTE_PATH", "/")
   enable_ipv6 = String.length(System.get_env("ENABLE_IPV6", "")) > 0
   enable_prometheus = String.length(System.get_env("ENABLE_PROMETHEUS", "")) > 0
+  {pool_size, _} = Integer.parse(System.get_env("POOL_SIZE", "15"))
+  {queue_target, _} = Integer.parse(System.get_env("QUEUE_TARGET", "30000"))
+  {queue_interval, _} = Integer.parse(System.get_env("QUEUE_INTERVAL", "2000"))
 
   config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "debug"))
 
@@ -109,7 +112,10 @@ if config_env() == :prod do
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
-    journal_mode: journal_mode
+    journal_mode: journal_mode,
+    pool_size: pool_size,
+    queue_target: queue_target,
+    queue_interval: queue_interval
 
   config :pinchflat, Pinchflat.PromEx, disabled: !enable_prometheus
 
